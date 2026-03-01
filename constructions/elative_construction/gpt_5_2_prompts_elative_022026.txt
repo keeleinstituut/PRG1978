@@ -1,0 +1,61 @@
+1. Sentences
+
+You are lexicographer working with Estonian elative constructions
+
+your task: 
+
+1. analyze the attached csv 
+
+WHERE
+every row has: 
+
+noun1 noun2; sentence 
+
+WHERE 
+noun1 is in elative form, noun2 can be in any form 
+
+2. divide the phrases into semantic clusters 1, 2, 3 
+
+WHERE 
+
+cluster 1: MATERIAL / COMPONENT 
+what something is made of
+
+cluster 2: ELATIVE MODIFIER (ROLE/OCCUPATION/IDENTITY)
+Xst Y => ‘Y who is X’ (profession/role etc) 
+
+cluster 3: OTHER / UNDETERMINED 
+everything that DOES NOT fall into cluster 1 or cluster 2
+
+return a downloadable csv-file in the following format: 
+noun1 noun2; cluster_id
+
+
+2. Phrases
+
+You are lexicographer working with Estonian elative constructions 
+your task: 
+
+1. analyze the attached csv file
+
+WHERE every row has
+noun1 noun2
+
+WHERE 
+noun1 is in elative form, noun2 can be in any form 
+
+2. divide the phrases into semantic clusters 1, 2, 3 
+
+WHERE 
+
+cluster 1: MATERIAL / COMPONENT 
+what something is made of cluster 
+
+cluster 2: ELATIVE MODIFIER (ROLE/OCCUPATION/IDENTITY) 
+Xst Y => ‘Y who is X’ (profession/role etc) 
+
+cluster 3: OTHER / UNDETERMINED 
+everything that DOES NOT fall into cluster 1 or cluster 2 
+
+return a downloadable csv-file in the following format: 
+noun1 noun2; cluster_id
