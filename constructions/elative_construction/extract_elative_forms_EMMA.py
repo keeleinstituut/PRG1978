@@ -1,5 +1,5 @@
 """
-Extract sentences from a VRT file where there exists a noun pair (PosValue == 'S') such that:
+Extract sentences from a EMMA corpus VRT file where there exists a noun pair (PosValue == 'S') such that:
 - noun1 is in elative (ela)
 - noun2 is in nominative (nom)
 - noun2 occurs AFTER noun1 in token order
@@ -14,7 +14,7 @@ import re
 from typing import Dict, List, Optional, Tuple
 
 INPUT_FILE = "vrt-with-meta-corpus-02-06-25_ordered.vrt"
-OUTPUT_FILE = "elative_modifiers.csv"
+OUTPUT_FILE = "elative_modifiers_EMMA.csv"
 
 # Column order in the header
 HEADER = [
