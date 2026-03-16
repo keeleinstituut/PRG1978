@@ -15,7 +15,7 @@ import pandas as pd
 from tqdm import tqdm
 
 PKL_PATH = "keeleoppija_sonaveeb_morph_syntax.df.pkl"
-OUT_PATH = "elative_modfiers_textbooks.csv"
+OUT_PATH = "elative_modifiers_textbooks.csv"
 
 
 def _get_first_ann(span):
@@ -55,16 +55,6 @@ def _surface_from_span(word_span, raw_text: str) -> str:
     return raw_text[bs.start:bs.end]
 
 
-# def _is_noun(morph_span) -> bool:
-#     """True if any morph analysis has partofspeech == 'S'."""
-#     try:
-#         for ann in getattr(morph_span, "annotations", []):
-#             if ann.get("partofspeech") == "S":
-#                 return True
-#     except Exception:
-#         pass
-#     return False
-
 def _is_noun(morph_span) -> bool:
     """True if the *first* morph analysis has partofspeech == 'S'."""
     try:
@@ -75,22 +65,6 @@ def _is_noun(morph_span) -> bool:
     except Exception:
         return False
 
-
-# def _is_elative_noun(morph_span) -> bool:
-#     """
-#     True if partofspeech == 'S' and morph 'form' contains case 'el' (elative),
-#     e.g. 'sg el' or 'pl el'.
-#     """
-#     try:
-#         for ann in getattr(morph_span, "annotations", []):
-#             if ann.get("partofspeech") != "S":
-#                 continue
-#             form = (ann.get("form") or "").strip()
-#             if "el" in form.split():
-#                 return True
-#     except Exception:
-#         pass
-#     return False
 
 def _is_elative_noun(morph_span) -> bool:
     """
@@ -221,7 +195,6 @@ def extract_adjacent_elative_head_pairs(korpus: pd.DataFrame) -> pd.DataFrame:
 
                 # Sentence string
                 # If each row is one sentence, this is just raw_text. Otherwise slice by sentence span.
-                # Here we keep it simple + safe:
                 sentence_str = raw_text.strip()
 
                 results.append({
