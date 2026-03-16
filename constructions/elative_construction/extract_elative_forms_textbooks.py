@@ -1,10 +1,21 @@
+"""
+Extract sentences from a textbooks corpus PKL file where there exists a noun pair (PosValue == 'S') such that:
+- noun1 is in elative (ela)
+- noun2 is in nominative (nom)
+- noun2 occurs AFTER noun1 in token order
+- noun2 is the dependency head (parent) of noun1 (i.e., head(noun1) == id(noun2))
+
+Output: elative_modifiers.csv (semicolon-separated) with rows:
+noun1 noun2; sentence
+"""
+
 import pickle
 import pandas as pd
 
 from tqdm import tqdm
 
 PKL_PATH = "keeleoppija_sonaveeb_morph_syntax.df.pkl"
-OUT_PATH = "täiendvormid_keeleõpikud_022026_ver3.csv"
+OUT_PATH = "elative_modfiers_textbooks.csv"
 
 
 def _get_first_ann(span):
