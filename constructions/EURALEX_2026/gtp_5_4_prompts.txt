@@ -1,0 +1,262 @@
+I Hulgasõna + definitsioon
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud failist kvantorite jaoks sisukad klassid/klastrid definitsioonide põhjal
+
+CSV-faili struktuur:
+kvantorsõna lemma,definitsioon
+
+Juhised:
+1. uuri/analüüsi lisatud kvantoreid ja definitsioone
+2. leia sõnade ja definitsioonide põhjal kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem
+3. pane igale klassile nimi/silt
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma,klass_id,klass_nimi,klass_selgitus
+
+II Hulgasõna
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud kvantorite jaoks sisukad klassid/klastrid.
+
+Juhised:
+1. uuri/analüüsi kvantoreid lisatud failis
+2. leia sõnade põhjal kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem
+3. pane igale klassile nimi/silt
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks 
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma,klass_id,klass_nimi,klass_selgitus
+
+III Hulgasõna + laused
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud failist kvantorite jaoks sisukad klassid/klastrid
+
+CSV-faili struktuur:
+kvantorsõna lemma;kvantorfraas;näidislause
+
+Juhised:
+1. uuri/analüüsi lisatud kvantoreid ja näidislauseid
+2. leia kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem kvantorsõnade lemmadele
+3. pane igale klassile nimi/silt
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma,klass_id,klass_nimi,klass_selgitus
+
+IV Hulgafraasid
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud hulgafraasidest kvantorite jaoks sisukad klassid/klastrid.
+
+Juhised:
+1. uuri/analüüsi lisatud hulgafraase (esimene sõna on kvantor, iga kvantori kohta kuni kolm fraasi järjestikku)
+2. leia kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem kvantorsõnadele
+3. pane igale klassile nimi/silt
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks 
+
+vasta eesti keeles
+
+koosta csv-fail järgnevas vormingus:
+lemma,klass_id,klass_nimi,klass_selgitus
+
+V Seletused + kasutusnäited
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+Ülesanne: 
+leida lisatud failist kvantorite jaoks sisukad klassid/klastrid.
+
+csv-file struktuur:
+kvanotrisõna lemma,definitsioon, kasutusnäide (ühe kvantori kohta võib olla mitu näidet)
+
+Juhised:
+1. uuri/analüüsi lisatud kvantoreid, definitsioone ja kasutusnäiteid
+2. leia kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem kvantorsõnade lemmadele
+3. pane igale klassile nimi/silt
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma,klass_id,klass_nimi,klass_selgitus
+
+VI Seletused + kasutusnäited - puhastuse viip
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud failist kvantorite klassifitseerimiseks sobivad näited
+
+csv-faili struktuur:
+SÕNA,DEFINITSIOON,KASUTUSNÄIDE
+
+KOKKU: 189 unikaalset SÕNA
+
+Juhised:
+1. uuri/analüüsi lisatud hulgasõnu, definitsioone ja näidislauseid/fraase
+2. jäta alles KÕIK read, milles kas DEFINITSIOON või KASUTUSNÄIDE illustreerib SÕNA kasutamist kvantorina
+3. jäta iga sõna kohta alles VÄHEMALT ÜKS definitsioon+kasutusnäide
+
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+jäta iga SÕNA kohta alles vähemalt ÜKS rida, iga SÕNA kohta võib jääda alles ROHKEM KUI ÜKS rida
+KONTROLLI, et iga SÕNA oleks väljundfailis esindatud VÄHEMALT ÜKS KORD
+KOKKU peab väljundfailis olema 189 unikaalset SÕNA
+
+koosta csv-fail alles jäetud ridadest järgnevas vormingus:
+sõna,definitsioon,kasutusnäide
+
+VII Definitsioonid - puhastuse viip
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud csv-failist definitsioonid, mis vastavad kõige paremini hulgasõnade määratlustele
+
+csv-faili struktuur:
+word_id;sona;def
+
+Juhised:
+1. uuri/analüüsi lisatud sõnu ja definitsioone (word_id ei ole oluline)
+2. leia definitsioon, mis kõige paremini kirjeldab sõna kui hulka määratlevat kvantorit
+3. jäta iga sõna kohta alles TÄPSELT ÜKS definitsioon
+4. jäta meelde valitud definitsiooniga seotud word_id
+
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+
+KONTROLLI, et iga SÕNA oleks väljundfailis esindatud VÄHEMALT ÜKS KORD
+KOKKU peab väljundfailis olema 189 unikaalset SÕNA
+
+koosta csv-fail järgnevas vormingus:
+word_id,hulgasõna,definitsioon
+
+VIII Hulgasõnad - kaks taset
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+leida lisatud kvantorite jaoks sisukad klassid/klastrid kahel hierarhilisel tasandil
+
+Juhised:
+1. uuri/analüüsi kvantoreid lisatud failis
+2. leia sõnade põhjal kõige optimaalsem/loogilisem ja sisukam klassifikatsioonisüsteem kahel hierarhilisel tasemel
+2.1 esimene tase - üldine jaotus
+2.2 teine tase - detailsem jaotus esimese taseme sees
+3. pane igale klassile nimi/silt (nt 1, 1.1. 1.2, 2, 2.1 jne)
+4. loetle kõik klassi kuuluvad kvantorid
+
+vajadusel kasuta võrdluseks veebiallikaid teiste keelte kohta
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks 
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma,tase1_id,tase2_id,tase1_nimi,tase1_selgitus,tase2_nimi,tase2_selgitus
+
+IX Võrdlushinnang
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne:
+Võrdle hulgafraaside kuldstandardi failis toodud klassifikatsiooni lisatud klasterdamise tulemusega
+
+Hinda klasterdamise tulemust järgneva algoritmiga:
+täpne semantiline vaste - 1.0 
+osaline semantiline vaste - 0.5
+vale klassifikatsioon - 0.0
+
+Koosta csv-fail järgnevas vormingus:
+lemma,kuldstandardi_klass,test_klass,hinne
+
+X Jagamine klastritesse kuldstandardi järgi
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+jaota failiga lisatud hulgasõnad (fraasid, definitsioonid, laused, kasutusnäited) ette antud klastritesse
+
+Klastrid:
+1. ajamõõdusõnad (nii standardsed kui ebamäärased)
+2. kogum (ühetaoliste elus või elutute entiteetide hulk)
+3. kogus (katustermin, mis hõlmab nii väga üldisi kui ka raskesti piiritletavaid aine eri olekus koguseid)
+4. kujuga kogus (hõlmab kuju moodustavaid aine või asjade koguseid ja kogumeid)
+5. liik (üldisel tasemel kategooriatesse liigitavad sõnad)
+6. mahuti (mahuti nimetused, mis toimivad aine või asjade koguse määratlejana)
+7. organiseeritud kogum (sõnad mis tähistavad kogumeid, milles üksikesemed on omavahel kuidagi ühendatud, teatud korrale alluvad)
+8. osa kogumist (sõnad, mis nimetavad ühte liiget/juhtumit nähtuste või sündumuste hulgast)
+9. piiritletud kogus (tüüpilselt mahutinimega piiritletud kogus)
+10. standardmõõtühikud (koguse, ruumi, mahu jms ühikud)
+11. tarbitav kogus (tüüpilist ühekordset tarmimiskogust nimetavad sõnad)
+12. väike kogus (ka kujuga)
+13. osa (ka suhteline osa, tükid ja proportsioonid)
+
+Juhised:
+1. uuri/analüüsi lisatud kvantoreid, definitsioone ja/või kasutusnäiteid
+2. leia õige vaste 13 ette antud klastri hulgast
+
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus:
+lemma;klaster_id
+
+XI Kolloanalüüsi kvantorite jaotus KS järgi
+
+Sa oled leksikograaf, kes töötab eestikeelsete kvantoritega/hulgasõnadega
+
+Ülesanne: 
+jaota failiga lisatud hulgasõnad ette antud klastritesse
+
+Klastrid:
+1. ajamõõdusõnad (nii standardsed kui ebamäärased)
+2. kogum (ühetaoliste elus või elutute entiteetide hulk)
+3. kogus (katustermin, mis hõlmab nii väga üldisi kui ka raskesti piiritletavaid aine eri olekus koguseid)
+4. kujuga kogus (hõlmab kuju moodustavaid aine või asjade koguseid ja kogumeid)
+5. liik (üldisel tasemel kategooriatesse liigitavad sõnad)
+6. mahuti (mahuti nimetused, mis toimivad aine või asjade koguse määratlejana)
+7. organiseeritud kogum (sõnad mis tähistavad kogumeid, milles üksikesemed on omavahel kuidagi ühendatud, teatud korrale alluvad)
+8. osa kogumist (sõnad, mis nimetavad ühte liiget/juhtumit nähtuste või sündumuste hulgast)
+9. piiritletud kogus (tüüpilselt mahutinimega piiritletud kogus)
+10. standardmõõtühikud (koguse, ruumi, mahu jms ühikud)
+11. tarbitav kogus (tüüpilist ühekordset tarmimiskogust nimetavad sõnad)
+12. väike kogus (ka kujuga)
+13. osa (ka suhteline osa, tükid ja proportsioonid)
+
+Juhised:
+1. uuri/analüüsi lisatud kvantoreid
+2. leia õige vaste 13 ette antud klastri hulgast
+
+vajadusel kasuta www.sõnaveeb.ee sõnaseletuste täpsustuseks
+
+vasta eesti keeles
+koosta csv-fail järgnevas vormingus
+(lisa klastri selgitus TÄPSELT SAMAS sõnastuses):
+lemma;klaster_id;klastri selgitus
