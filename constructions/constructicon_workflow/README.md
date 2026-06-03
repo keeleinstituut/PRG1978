@@ -1,6 +1,6 @@
 # Constructicon creation workflow
 Our task is to create a uniform workflow for constructicon entry creation. This repository stores all the code and data needed for this project. For a more detailed description of the workflow, see article in the Proceedings of Asialex 2026.
 
-* 001_morphosyntactic_extraction: Extracting a construction's example candidates based purely on its morphosyntactic pattern and lexical anchors. Making a frequency list of said examples and their components.
-* 002_semantic_annotation: Annotating said example candidates semantically by using LLMs. This allows us to filter out noise and leaves us with instances of the construction with the correct form and meaning. Includes both an experiment to determine the best method of annotation and that method's application on a larger dataset.
-* 003_database_creation: Extracting a wider range of examples per construction based on lexemes with the correct form and meaning. Storing info on the construction and its examples in an SQLite database for import into the EKI Combined Dictionary. 
+* **001_morphosyntactic_extraction**: Extracting a construction's example candidates based purely on its morphosyntactic pattern and lexical anchors. Making a frequency list of said examples and their components.
+* **002_semantic_annotation**: Annotating said example candidates semantically by using LLMs. This allows us to filter out noise and leaves us with instances of the construction with the correct form and meaning. Includes both an experiment to determine the best method of annotation and that method's application on a larger dataset.
+* **003_database_creation**: Extracting a wider range of examples per construction based on lexemes with the correct form and meaning. Storing info on the construction and its examples in an SQLite database for import into the EKI Combined Dictionary. 

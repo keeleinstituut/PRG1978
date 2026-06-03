@@ -1,0 +1,1 @@
+original Estonian prompts used on the LLMs for semantic annotation.
