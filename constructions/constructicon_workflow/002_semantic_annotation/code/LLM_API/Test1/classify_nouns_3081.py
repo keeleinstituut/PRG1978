@@ -117,7 +117,7 @@ def init_output_file(output_csv, overwrite):
     if not output_path.exists():
         with output_path.open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            writer.writerow(["sõna", "0/1"])
+            writer.writerow(["lemma", "0/1"])
 
 
 def normalize_answer(answer_text):
