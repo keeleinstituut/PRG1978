@@ -65,7 +65,7 @@ def read_words(input_csv):
     phrase_rows = []
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f, delimiter=";")
+        reader = csv.DictReader(f, dialect=dialect)
 
         if reader.fieldnames and {"instance_form", "comp1_form", "comp2_form"}.issubset(reader.fieldnames):
             for row in reader:

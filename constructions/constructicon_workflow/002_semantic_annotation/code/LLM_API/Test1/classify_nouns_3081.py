@@ -12,7 +12,8 @@ from urllib import request, error
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-INPUT_ENCODING = "cp1257"
+INPUT_ENCODING = "utf-8-sig"
+DEFAULT_INPUT_CSV = Path(__file__).resolve().parents[1] / "test_data" / "lemma.csv"
 
 SYSTEM_PROMPT = """Sa oled leksikograaf, kes töötab eestikeelsete nimisõnade klassifitseerimisega.
 
@@ -64,23 +65,26 @@ def read_words(input_csv):
     words = []
 
     with input_path.open("r", encoding=INPUT_ENCODING, newline="") as f:
-        reader = csv.reader(f, dialect)
+        reader = csv.DictReader(f, dialect=dialect)
+        fieldnames = reader.fieldnames or []
 
-        for row_idx, row in enumerate(reader):
-            if not row:
-                continue
+        if not fieldnames:
+            raise ValueError(f"Input CSV must contain a header row: {input_csv}")
 
-            word = row[0].strip()
+        input_header = fieldnames[0]
+
+        if not input_header or not input_header.strip():
+            raise ValueError(f"Input CSV first header cannot be empty: {input_csv}")
+
+        for row in reader:
+            word = (row.get(input_header) or "").strip()
 
             if not word:
                 continue
 
-            if row_idx == 0 and word.lower() in {"sõna", "sona", "lemma", "word", "noun"}:
-                continue
-
             words.append(word)
 
-    return words
+    return input_header, words
 
 
 def read_existing_answers(output_csv):
@@ -108,7 +112,7 @@ def read_existing_answers(output_csv):
     return done
 
 
-def init_output_file(output_csv, overwrite):
+def init_output_file(output_csv, overwrite, input_header):
     output_path = Path(output_csv)
 
     if overwrite and output_path.exists():
@@ -117,7 +121,7 @@ def init_output_file(output_csv, overwrite):
     if not output_path.exists():
         with output_path.open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            writer.writerow(["lemma", "0/1"])
+            writer.writerow([input_header, "0/1"])
 
 
 def normalize_answer(answer_text):
@@ -315,13 +319,13 @@ def main():
     parser.add_argument(
         "output_csv",
         nargs="?",
-        default="mudel_vastused.csv",
-        help="Output CSV file, e.g. mudel_vastused.csv"
+        default="classified_nouns_1_1.csv",
+        help="Output CSV file, e.g. classified_nouns_1_1.csv"
     )
 
     parser.add_argument(
         "--input_csv",
-        default="wordlist_freq5.csv",
+        default=DEFAULT_INPUT_CSV,
         help=f"Input CSV file with one noun per row, read as {INPUT_ENCODING}"
     )
 
@@ -369,12 +373,12 @@ def main():
             "OPENROUTER_API_KEY not found. Put it in .env as OPENROUTER_API_KEY=sk-or-..."
         )
 
-    words = read_words(args.input_csv)
+    input_header, words = read_words(args.input_csv)
 
     if not words:
         raise RuntimeError(f"No words found in {args.input_csv}")
 
-    init_output_file(args.output_csv, args.overwrite)
+    init_output_file(args.output_csv, args.overwrite, input_header)
     done_words = read_existing_answers(args.output_csv)
 
     todo_words = [word for word in words if word not in done_words]

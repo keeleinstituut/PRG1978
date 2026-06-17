@@ -73,7 +73,7 @@ def read_words(input_csv):
     phrase_rows = []
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f, delimiter=";")
+        reader = csv.DictReader(f, dialect=dialect)
 
         required_fields = {
             "sentence",

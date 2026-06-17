@@ -78,9 +78,9 @@ The committed file `millest_mis_1000.csv` contains the main phrase-level referen
 - `comp1_id`
 - `comp2_id`
 
-The Test1 scripts expect word-list inputs with one noun or lemma per row. Some historical/default filenames used by the scripts, such as `katse1_unikaalsed_lemmad_EI_llama.csv`, are experiment inputs and may be external to this directory.
+The Test1 scripts expect word-list CSV files where the first row is a header and the input lemma column is named `lemma`. Some historical/default filenames used by the scripts, such as `katse1_unikaalsed_lemmad_EI_llama.csv`, are experiment inputs and may be external to this directory.
 
-Phrase-level scripts expect semicolon-delimited CSV files with named columns.
+Phrase-level scripts expect CSV files with named columns. Input readers sniff comma, semicolon, and tab delimiters.
 
 ## Output Format and Resuming
 
@@ -98,13 +98,13 @@ These scripts classify individual nouns or lemmas.
 
 | Script | Task | Prompt/API variant | Input | Output |
 | --- | --- | --- | --- | --- |
-| `Test1/classify_nouns.py` | profession/nationality/role | OpenRouter, zero-shot | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_material.py` | material/substance | OpenRouter, zero-shot | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_nouns_few.py` | profession/nationality/role | OpenRouter, few-shot | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_material_few.py` | material/substance | OpenRouter, few-shot | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_nouns_estllm.py` | profession/nationality/role | TartuNLP EstLLM via Featherless | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_material_estllm.py` | material/substance | TartuNLP EstLLM via Featherless | first column contains one lemma per row | `lemma;0/1` |
-| `Test1/classify_nouns_3081.py` | profession/nationality/role | OpenRouter variant for `cp1257` input | first column contains one lemma per row | `lemma;0/1` |
+| `Test1/classify_nouns.py` | profession/nationality/role | OpenRouter, zero-shot | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_material.py` | material/substance | OpenRouter, zero-shot | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_nouns_few.py` | profession/nationality/role | OpenRouter, few-shot | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_material_few.py` | material/substance | OpenRouter, few-shot | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_nouns_estllm.py` | profession/nationality/role | TartuNLP EstLLM via Featherless | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_material_estllm.py` | material/substance | TartuNLP EstLLM via Featherless | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_nouns_3081.py` | profession/nationality/role | OpenRouter variant for `cp1257` input | word-list CSV with `lemma` column | `lemma;0/1` |
 
 ### Test2: Phrase-Level Classification With Component Columns
 
@@ -129,6 +129,12 @@ These scripts classify whether a phrase matches a construction-level definition.
 | `Test3/classify_nouns_3_4.py`, `Test3/classify_material_3_9.py` | appositive or modifier | `instance_form_long` | `instance_form_long`, `0/1` |
 | `Test3/classify_nouns_3_5.py`, `Test3/classify_material_3_10.py` | appositive or modifier with sentence context | `instance_form_long`, `sentence` | `instance_form_long`, `sentence`, `0/1` |
 
+### Helper Script
+
+| Script | Use case | Input | Output |
+| --- | --- | --- | --- |
+| `from_subtask1_extract_zero_values.py` | Bridge subtask 1 to subtask 2. Subtask 1 is any `classify_nouns*.py` script, which identifies profession/nationality/role cases. The helper keeps only rows where subtask 1 returned `0`, so they can be passed to the paired subtask 2 `classify_material*.py` script. | Any `classify_nouns*.py` output CSV with a `0/1` label column. This applies to Test1, Test2, and Test3 outputs. | Same columns as the input, except the `0/1` column is removed. Only rows with `0/1 = 0` are written. |
+
 ## Usage Examples
 
 Run a Test2 profession/nationality/role classifier on the committed reference CSV:
@@ -148,6 +154,16 @@ Run a Test1 zero-shot material classifier on an external word-list CSV:
 ```bash
 python Test1/classify_material.py google/gemini-2.5-flash-lite output_material.csv --input_csv path/to/word_list.csv
 ```
+
+Run the two-subtask workflow:
+
+```bash
+python Test1/classify_nouns.py google/gemini-2.5-flash-lite output_nouns.csv --input_csv path/to/lemma_list.csv
+python from_subtask1_extract_zero_values.py output_nouns.csv material_input.csv
+python Test1/classify_material.py google/gemini-2.5-flash-lite output_material.csv --input_csv material_input.csv
+```
+
+In this workflow, subtask 1 classifies profession/nationality/role cases and subtask 2 classifies material/substance cases. `from_subtask1_extract_zero_values.py` keeps only subtask 1 rows where `0/1` is `0` and removes the `0/1` column. The resulting CSV can be used directly as material-classification input. The same pattern applies to the paired Test2 and Test3 scripts, for example `classify_nouns_2_1.py` -> `classify_material_2_5.py` or `classify_nouns_3_3.py` -> `classify_material_3_8.py`.
 
 Run TartuNLP EstLLM through Featherless.ai:
 
