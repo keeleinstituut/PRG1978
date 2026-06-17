@@ -12,7 +12,7 @@ The examples below assume that commands are run from this folder:
 cd code/LLM_API
 ```
 
-Paths such as `.env`, `millest_mis_1000.csv`, and output CSV names are resolved relative to the current working directory unless absolute paths are provided.
+Paths such as `.env`, `test_data/millest_mis_1000.csv`, and output CSV names are resolved relative to the current working directory unless absolute paths are provided.
 
 ## Setup and API Keys
 
@@ -39,7 +39,7 @@ The analysis notebooks in `../result_analysis` are separate from these API scrip
 Most scripts support the following parameters:
 
 - `model_name` (positional): LLM identifier, e.g. `google/gemini-2.5-flash-lite` or `meta-llama/llama-3.3-70b-instruct`.
-- `output_csv` (positional, optional): output CSV path. Defaults to `mudel_vastused.csv`.
+- `output_csv` (positional, optional): output CSV path. The default depends on the script.
 - `--input_csv`: input CSV path.
 - `--env_file`: path to the `.env` file. Defaults to `.env`.
 - `--sleep`: delay between API calls in seconds. Defaults to `0.0`.
@@ -65,7 +65,7 @@ The main target categories are:
 
 ## Input Data
 
-The committed file `millest_mis_1000.csv` contains the main phrase-level reference data used by the Test2 and Test3 scripts. It includes columns such as:
+The file `test_data/millest_mis_1000.csv` contains the main phrase-level reference data used by the Test2 and Test3 scripts. It includes columns such as:
 
 - `sentence`
 - `instance_form_long`
@@ -78,13 +78,13 @@ The committed file `millest_mis_1000.csv` contains the main phrase-level referen
 - `comp1_id`
 - `comp2_id`
 
-The Test1 scripts expect word-list CSV files where the first row is a header and the input lemma column is named `lemma`. Some historical/default filenames used by the scripts, such as `katse1_unikaalsed_lemmad_EI_llama.csv`, are experiment inputs and may be external to this directory.
+The Test1 scripts expect word-list CSV files where the first row is a header. They use the first header as the input column name and copy that same header to the output file. In the current Test1 workflow, the noun scripts default to `test_data/lemma.csv`, whose header is `lemma`.
 
 Phrase-level scripts expect CSV files with named columns. Input readers sniff comma, semicolon, and tab delimiters.
 
 ## Output Format and Resuming
 
-Output files are semicolon-delimited CSV files. The final column is always `0/1`.
+Output files are semicolon-delimited CSV files. The final column is always `0/1`. Test1 and Test2 workflow scripts write the input header or headers plus `0/1`, for example `lemma;0/1` or `instance_form;comp1_form;comp2_form;0/1`.
 
 If an output file already exists, scripts read the existing valid rows and continue with the remaining input. This makes interrupted API runs resumable. Use `--overwrite` to start the output file from scratch.
 
@@ -98,24 +98,60 @@ These scripts classify individual nouns or lemmas.
 
 | Script | Task | Prompt/API variant | Input | Output |
 | --- | --- | --- | --- | --- |
-| `Test1/classify_nouns.py` | profession/nationality/role | OpenRouter, zero-shot | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_material.py` | material/substance | OpenRouter, zero-shot | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_nouns_few.py` | profession/nationality/role | OpenRouter, few-shot | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_material_few.py` | material/substance | OpenRouter, few-shot | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_nouns_estllm.py` | profession/nationality/role | TartuNLP EstLLM via Featherless | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_material_estllm.py` | material/substance | TartuNLP EstLLM via Featherless | word-list CSV with `lemma` column | `lemma;0/1` |
-| `Test1/classify_nouns_3081.py` | profession/nationality/role | OpenRouter variant for `cp1257` input | word-list CSV with `lemma` column | `lemma;0/1` |
+| `Test1/classify_nouns.py` | profession/nationality/role | OpenRouter, zero-shot | first-column word-list CSV; default `test_data/lemma.csv` | input header + `0/1`; default `classified_nouns_1_1.csv` |
+| `Test1/classify_material.py` | material/substance | OpenRouter, zero-shot | helper output from noun classifier; default `classified_nouns_1_1_zero_values.csv` | input header + `0/1`; default `classified_materials_1_2.csv` |
+| `Test1/classify_nouns_few.py` | profession/nationality/role | OpenRouter, few-shot | first-column word-list CSV; default `test_data/lemma.csv` | input header + `0/1`; default `classified_nouns_1_1.csv` |
+| `Test1/classify_material_few.py` | material/substance | OpenRouter, few-shot | helper output from noun classifier; default `classified_nouns_1_1_zero_values.csv` | input header + `0/1`; default `classified_materials_1_2.csv` |
+| `Test1/classify_nouns_estllm.py` | profession/nationality/role | TartuNLP EstLLM via Featherless | first-column word-list CSV; default `test_data/lemma.csv` | input header + `0/1`; default `classified_nouns_1_1.csv` |
+| `Test1/classify_material_estllm.py` | material/substance | TartuNLP EstLLM via Featherless | helper output from noun classifier; default `classified_nouns_1_1_zero_values.csv` | input header + `0/1`; default `classified_materials_1_2.csv` |
+| `Test1/classify_nouns_3081.py` | profession/nationality/role | OpenRouter historical 3081 variant | first-column word-list CSV; default `test_data/lemma.csv` | input header + `0/1`; default `classified_nouns_1_1.csv` |
+
+#### Test1 Workflow
+
+Test1 has two subtasks:
+
+- **Subtask 1**: run a `classify_nouns*.py` script to identify profession, nationality, or role nouns.
+- **Subtask 2**: run a matching `classify_material*.py` script only on rows that received `0` in subtask 1.
+
+The default Test1 noun input is `test_data/lemma.csv`, generated from the unique `comp1_lemma` values in `test_data/millest_mis_1000.csv`. The noun output defaults to `classified_nouns_1_1.csv`.
+
+Before running a material script, create the material input with:
+
+```bash
+python from_subtask1_extract_zero_values.py classified_nouns_1_1.csv classified_nouns_1_1_zero_values.csv
+```
+
+This helper keeps only rows where `0/1` is `0` and removes the `0/1` column. The remaining CSV keeps the original input header, usually `lemma`. The Test1 material scripts default to reading `classified_nouns_1_1_zero_values.csv` and writing `classified_materials_1_2.csv`.
+
+If you run multiple Test1 variants in the same directory, pass explicit output filenames so one experiment does not resume from or append to another variant's output.
 
 ### Test2: Phrase-Level Classification With Component Columns
 
 These scripts classify the semantic relation between the first phrase component and the head word. The role/profession/nationality scripts are `2_1` to `2_4`; the material/substance scripts are `2_5` to `2_8`.
 
-| Scripts | Task | Required input columns | Output columns |
-| --- | --- | --- | --- |
-| `Test2/classify_nouns_2_1.py`, `Test2/classify_material_2_5.py` | role or material | `instance_lemma`, `comp1_form`, `comp2_lemma` | input columns + `0/1` |
-| `Test2/classify_nouns_2_2.py`, `Test2/classify_material_2_6.py` | role or material | `instance_form`, `comp1_form`, `comp2_form` | input columns + `0/1` |
-| `Test2/classify_nouns_2_3.py`, `Test2/classify_material_2_7.py` | role or material | `instance_form_long`, `comp1_form`, `comp2_form` | input columns + `0/1` |
-| `Test2/classify_nouns_2_4.py`, `Test2/classify_material_2_8.py` | role or material with sentence context | `sentence`, `comp1_form`, `comp1_id`, `comp2_form`, `comp2_id` | input columns + `0/1` |
+Test2 also has two subtasks:
+
+- **Subtask 1**: run a `classify_nouns_2_*.py` script to identify profession, nationality, or role relations.
+- **Subtask 2**: run the paired `classify_material_2_*.py` script only on rows that received `0` in subtask 1.
+
+The Test2 input CSVs in `test_data/` are derived from `test_data/millest_mis_1000.csv`. The scripts preserve the input headers in the output and append `0/1`.
+
+| Case | Noun script | Default noun input | Default noun output | Helper output / material input | Material script | Default material output |
+| --- | --- | --- | --- | --- | --- | --- |
+| `2_1` -> `2_5` | `Test2/classify_nouns_2_1.py` | `test_data/instance_lemma_comp1_form_comp2_lemma.csv` | `classified_nouns_2_1.csv` | `classified_nouns_2_1_zero_values.csv` | `Test2/classify_material_2_5.py` | `classified_materials_2_5.csv` |
+| `2_2` -> `2_6` | `Test2/classify_nouns_2_2.py` | `test_data/instance_form_comp1_form_comp2_form.csv` | `classified_nouns_2_2.csv` | `classified_nouns_2_2_zero_values.csv` | `Test2/classify_material_2_6.py` | `classified_materials_2_6.csv` |
+| `2_3` -> `2_7` | `Test2/classify_nouns_2_3.py` | `test_data/instance_form_long_comp1_form_comp2_form.csv` | `classified_nouns_2_3.csv` | `classified_nouns_2_3_zero_values.csv` | `Test2/classify_material_2_7.py` | `classified_materials_2_7.csv` |
+| `2_4` -> `2_8` | `Test2/classify_nouns_2_4.py` | `test_data/sentence_comp_form_comp_id.csv` | `classified_nouns_2_4.csv` | `classified_nouns_2_4_zero_values.csv` | `Test2/classify_material_2_8.py` | `classified_materials_2_8.csv` |
+
+Before running a Test2 material script, create its input with `from_subtask1_extract_zero_values.py`. For example:
+
+```bash
+python from_subtask1_extract_zero_values.py classified_nouns_2_1.csv classified_nouns_2_1_zero_values.csv
+```
+
+The helper keeps only rows where `0/1` is `0`, removes the `0/1` column, and keeps the remaining input headers unchanged. The paired material script reads that helper output by default.
+
+If you run several Test2 cases in the same directory, keep the default filenames per case or pass explicit output filenames so different experiments do not resume from each other's output.
 
 ### Test3: Phrase-Level Classification From Phrase/Context
 
@@ -137,25 +173,45 @@ These scripts classify whether a phrase matches a construction-level definition.
 
 ## Usage Examples
 
-Run a Test2 profession/nationality/role classifier on the committed reference CSV:
+Run the default Test2 `2_1` -> `2_5` workflow:
 
 ```bash
-python Test2/classify_nouns_2_1.py google/gemini-2.5-flash-lite output_nouns_2_1.csv --input_csv millest_mis_1000.csv
+python Test2/classify_nouns_2_1.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_2_1.csv classified_nouns_2_1_zero_values.csv
+python Test2/classify_material_2_5.py google/gemini-2.5-flash-lite
+```
+
+Run the other Test2 pairs in the same pattern:
+
+```bash
+python Test2/classify_nouns_2_2.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_2_2.csv classified_nouns_2_2_zero_values.csv
+python Test2/classify_material_2_6.py google/gemini-2.5-flash-lite
+
+python Test2/classify_nouns_2_3.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_2_3.csv classified_nouns_2_3_zero_values.csv
+python Test2/classify_material_2_7.py google/gemini-2.5-flash-lite
+
+python Test2/classify_nouns_2_4.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_2_4.csv classified_nouns_2_4_zero_values.csv
+python Test2/classify_material_2_8.py google/gemini-2.5-flash-lite
 ```
 
 Run a Test3 material/modifier classifier with sentence context:
 
 ```bash
-python Test3/classify_material_3_8.py google/gemini-2.5-flash-lite output_material_3_8.csv --input_csv millest_mis_1000.csv
+python Test3/classify_material_3_8.py google/gemini-2.5-flash-lite output_material_3_8.csv --input_csv test_data/millest_mis_1000.csv
 ```
 
-Run a Test1 zero-shot material classifier on an external word-list CSV:
+Run the default Test1 two-subtask workflow:
 
 ```bash
-python Test1/classify_material.py google/gemini-2.5-flash-lite output_material.csv --input_csv path/to/word_list.csv
+python Test1/classify_nouns.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_1_1.csv classified_nouns_1_1_zero_values.csv
+python Test1/classify_material.py google/gemini-2.5-flash-lite
 ```
 
-Run the two-subtask workflow:
+Run the same Test1 workflow with explicit filenames:
 
 ```bash
 python Test1/classify_nouns.py google/gemini-2.5-flash-lite output_nouns.csv --input_csv path/to/lemma_list.csv
@@ -163,12 +219,14 @@ python from_subtask1_extract_zero_values.py output_nouns.csv material_input.csv
 python Test1/classify_material.py google/gemini-2.5-flash-lite output_material.csv --input_csv material_input.csv
 ```
 
-In this workflow, subtask 1 classifies profession/nationality/role cases and subtask 2 classifies material/substance cases. `from_subtask1_extract_zero_values.py` keeps only subtask 1 rows where `0/1` is `0` and removes the `0/1` column. The resulting CSV can be used directly as material-classification input. The same pattern applies to the paired Test2 and Test3 scripts, for example `classify_nouns_2_1.py` -> `classify_material_2_5.py` or `classify_nouns_3_3.py` -> `classify_material_3_8.py`.
+The same helper pattern also applies to paired Test3 scripts, for example `classify_nouns_3_3.py` -> `classify_material_3_8.py`.
 
 Run TartuNLP EstLLM through Featherless.ai:
 
 ```bash
-python Test1/classify_material_estllm.py tartuNLP/Llama-3.1-EstLLM-8B-Instruct-1125 output_estllm.csv --input_csv path/to/word_list.csv
+python Test1/classify_nouns_estllm.py
+python from_subtask1_extract_zero_values.py classified_nouns_1_1.csv classified_nouns_1_1_zero_values.csv
+python Test1/classify_material_estllm.py
 ```
 
 Use `python3` instead of `python` if that is how Python is exposed in your environment.
@@ -176,7 +234,7 @@ Use `python3` instead of `python` if that is how Python is exposed in your envir
 ## Troubleshooting
 
 - **Missing API key**: check that `.env` exists in the directory you are running from, or pass `--env_file`.
-- **Input CSV column error**: check the script table above and make sure the input file has the required named columns.
+- **Input CSV column error**: check the script table above and make sure the input file has the required named columns. Test1 scripts require a header row and use the first column as the item to classify.
 - **Existing output header mismatch**: choose a new output filename or use `--overwrite`.
 - **Interrupted run**: rerun the same command with the same output file; completed valid rows will be skipped.
 - **API rate limits or temporary failures**: scripts retry HTTP `429`, `500`, `502`, `503`, and `504` responses up to `--max_retries`.

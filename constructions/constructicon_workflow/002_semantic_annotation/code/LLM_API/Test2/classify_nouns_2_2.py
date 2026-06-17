@@ -13,6 +13,7 @@ from urllib import request, error
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_INPUT_CSV = Path(__file__).resolve().parents[1] / "test_data" / "instance_form_comp1_form_comp2_form.csv"
 
 SYSTEM_PROMPT = """Sa oled leksikograaf, kes töötab eestikeelsete nimisõnafraaside klassifitseerimisega.
 
@@ -66,30 +67,38 @@ def read_words(input_csv):
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f, dialect=dialect)
+        input_headers = reader.fieldnames or []
 
-        if reader.fieldnames and {"instance_form", "comp1_form", "comp2_form"}.issubset(reader.fieldnames):
-            for row in reader:
-                instance_form = (row.get("instance_form") or "").strip()
-                comp1_form = (row.get("comp1_form") or "").strip()
-                comp2_form = (row.get("comp2_form") or "").strip()
+        if not input_headers:
+            raise ValueError(f"Input CSV must contain a header row: {input_csv}")
 
-                if instance_form and comp1_form and comp2_form:
-                    phrase_rows.append(
-                        {
-                            "instance_form": instance_form,
-                            "comp1_form": comp1_form,
-                            "comp2_form": comp2_form,
-                        }
-                    )
+        required_headers = {"instance_form", "comp1_form", "comp2_form"}
 
-            return phrase_rows
+        if not required_headers.issubset(input_headers):
+            raise ValueError(
+                f"Input CSV must contain instance_form, comp1_form, and comp2_form columns: {input_csv}"
+            )
 
-    raise ValueError(
-        f"Input CSV must contain instance_form, comp1_form, and comp2_form columns: {input_csv}"
-    )
+        for row in reader:
+            input_values = [(row.get(header) or "").strip() for header in input_headers]
+            instance_form = (row.get("instance_form") or "").strip()
+            comp1_form = (row.get("comp1_form") or "").strip()
+            comp2_form = (row.get("comp2_form") or "").strip()
+
+            if instance_form and comp1_form and comp2_form:
+                phrase_rows.append(
+                    {
+                        "input_values": input_values,
+                        "instance_form": instance_form,
+                        "comp1_form": comp1_form,
+                        "comp2_form": comp2_form,
+                    }
+                )
+
+    return input_headers, phrase_rows
 
 
-def read_existing_answers(output_csv):
+def read_existing_answers(output_csv, input_headers):
     output_path = Path(output_csv)
 
     if not output_path.exists():
@@ -98,37 +107,26 @@ def read_existing_answers(output_csv):
     done = Counter()
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
-        reader = csv.reader(f, delimiter=";")
+        reader = csv.DictReader(f, delimiter=";")
+        expected_headers = input_headers + ["0/1"]
 
-        for row_idx, row in enumerate(reader):
-            if row_idx == 0:
-                continue
+        if reader.fieldnames != expected_headers:
+            raise ValueError(
+                f"Existing output header {reader.fieldnames} does not match expected {expected_headers}. "
+                "Use a new output file or rerun with --overwrite."
+            )
 
-            if len(row) >= 4:
-                word = row[0].strip()
-                comp1_form = row[1].strip()
-                comp2_form = row[2].strip()
-                answer = row[3].strip()
+        for row in reader:
+            row_key = tuple((row.get(header) or "").strip() for header in input_headers)
+            answer = (row.get("0/1") or "").strip()
 
-                if word and comp1_form and comp2_form and answer in {"0", "1"}:
-                    done[(word, comp1_form, comp2_form)] += 1
+            if all(row_key) and answer in {"0", "1"}:
+                done[row_key] += 1
 
     return done
 
 
-def write_raw_semicolon_row(file_obj, values):
-    row = [str(value) for value in values]
-
-    for value in row:
-        if any(char in value for char in ";\r\n"):
-            raise ValueError(
-                f"Cannot write unquoted semicolon CSV field containing delimiter/newline: {value!r}"
-            )
-
-    file_obj.write(";".join(row) + "\n")
-
-
-def init_output_file(output_csv, overwrite):
+def init_output_file(output_csv, overwrite, input_headers):
     output_path = Path(output_csv)
 
     if overwrite and output_path.exists():
@@ -136,10 +134,8 @@ def init_output_file(output_csv, overwrite):
 
     if not output_path.exists():
         with output_path.open("w", encoding="utf-8", newline="") as f:
-            write_raw_semicolon_row(
-                f,
-                ["instance_form", "comp1_form", "comp2_form", "0/1"]
-            )
+            writer = csv.writer(f, delimiter=";")
+            writer.writerow(input_headers + ["0/1"])
 
 
 def normalize_answer(answer_text):
@@ -322,9 +318,10 @@ def classify_word(api_key, model_name, phrase_row, timeout, max_retries):
     return normalize_answer(answer_text)
 
 
-def append_answer(output_csv, word, comp1_form, comp2_form, answer):
+def append_answer(output_csv, phrase_row, answer):
     with open(output_csv, "a", encoding="utf-8", newline="") as f:
-        write_raw_semicolon_row(f, [word, comp1_form, comp2_form, answer])
+        writer = csv.writer(f, delimiter=";")
+        writer.writerow(phrase_row["input_values"] + [answer])
         f.flush()
 
 
@@ -341,14 +338,14 @@ def main():
     parser.add_argument(
         "output_csv",
         nargs="?",
-        default="mudel_vastused.csv",
-        help="Output CSV file, e.g. mudel_vastused.csv"
+        default="classified_nouns_2_2.csv",
+        help="Output CSV file, e.g. classified_nouns_2_2.csv"
     )
 
     parser.add_argument(
         "--input_csv",
-        default="katse2_2.csv",
-        help="Input CSV file with one noun per row"
+        default=DEFAULT_INPUT_CSV,
+        help="Input CSV file with instance_form, comp1_form, and comp2_form columns"
     )
 
     parser.add_argument(
@@ -395,23 +392,19 @@ def main():
             "OPENROUTER_API_KEY not found. Put it in .env as OPENROUTER_API_KEY=sk-or-..."
         )
 
-    phrase_rows = read_words(args.input_csv)
+    input_headers, phrase_rows = read_words(args.input_csv)
 
     if not phrase_rows:
         raise RuntimeError(f"No phrases found in {args.input_csv}")
 
-    init_output_file(args.output_csv, args.overwrite)
-    done_words = read_existing_answers(args.output_csv)
+    init_output_file(args.output_csv, args.overwrite, input_headers)
+    done_words = read_existing_answers(args.output_csv, input_headers)
 
     todo_rows = []
     seen_rows = Counter()
 
     for phrase_row in phrase_rows:
-        row_key = (
-            phrase_row["instance_form"],
-            phrase_row["comp1_form"],
-            phrase_row["comp2_form"],
-        )
+        row_key = tuple(phrase_row["input_values"])
 
         seen_rows[row_key] += 1
 
@@ -438,7 +431,7 @@ def main():
                 max_retries=args.max_retries
             )
 
-            append_answer(args.output_csv, word, comp1_form, comp2_form, answer)
+            append_answer(args.output_csv, phrase_row, answer)
 
             print(f"[{idx}/{len(todo_rows)}] {word} -> {answer}")
 
