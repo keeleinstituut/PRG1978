@@ -13,7 +13,7 @@ from urllib import request, error
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-OUTPUT_FIELDS = ["instance_form", "sentence", "0/1"]
+DEFAULT_INPUT_CSV = Path(__file__).resolve().parents[1] / "classified_nouns_3_3_zero_values.csv"
 
 SYSTEM_PROMPT = """Sa oled leksikograaf, kes töötab eestikeelsete nimisõnafraaside klassifitseerimisega.
 
@@ -67,37 +67,40 @@ def read_words(input_csv):
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f, dialect=dialect)
+        input_headers = reader.fieldnames or []
+
+        if not input_headers:
+            raise ValueError(f"Input CSV must contain a header row: {input_csv}")
 
         required_fields = {"instance_form", "sentence"}
 
-        if reader.fieldnames and required_fields.issubset(reader.fieldnames):
-            for row in reader:
-                instance_form = (row.get("instance_form") or "").strip()
-                sentence = (row.get("sentence") or "").strip()
+        if not required_fields.issubset(input_headers):
+            raise ValueError(
+                f"Input CSV must contain instance_form and sentence columns: {input_csv}"
+            )
 
-                if instance_form and sentence:
-                    phrase_rows.append(
-                        {
-                            "instance_form": instance_form,
-                            "sentence": sentence,
-                        }
-                    )
+        for row in reader:
+            input_values = [(row.get(header) or "").strip() for header in input_headers]
+            instance_form = (row.get("instance_form") or "").strip()
+            sentence = (row.get("sentence") or "").strip()
 
-            return phrase_rows
+            if instance_form and sentence:
+                phrase_rows.append(
+                    {
+                        "input_values": input_values,
+                        "instance_form": instance_form,
+                        "sentence": sentence,
+                    }
+                )
 
-    raise ValueError(
-        f"Input CSV must contain instance_form and sentence columns: {input_csv}"
-    )
+    return input_headers, phrase_rows
 
 
 def make_row_key(phrase_row):
-    return (
-        phrase_row["instance_form"],
-        phrase_row["sentence"],
-    )
+    return tuple(phrase_row["input_values"])
 
 
-def read_existing_answers(output_csv):
+def read_existing_answers(output_csv, input_headers):
     output_path = Path(output_csv)
 
     if not output_path.exists():
@@ -106,27 +109,28 @@ def read_existing_answers(output_csv):
     done = Counter()
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
-        reader = csv.reader(f, delimiter=";")
+        reader = csv.DictReader(f, delimiter=";")
+        expected_headers = input_headers + ["0/1"]
 
-        for row_idx, row in enumerate(reader):
-            if row_idx == 0:
-                continue
+        if reader.fieldnames != expected_headers:
+            raise ValueError(
+                f"Existing output header {reader.fieldnames} does not match expected {expected_headers}. "
+                "Use a new output file or rerun with --overwrite."
+            )
 
-            if len(row) >= 3:
-                row_key = (
-                    row[0].strip(),
-                    row[1].strip(),
-                )
-                answer = row[2].strip()
+        for row in reader:
+            row_key = tuple((row.get(header) or "").strip() for header in input_headers)
+            answer = (row.get("0/1") or "").strip()
 
-                if all(row_key) and answer in {"0", "1"}:
-                    done[row_key] += 1
+            if all(row_key) and answer in {"0", "1"}:
+                done[row_key] += 1
 
     return done
 
 
-def init_output_file(output_csv, overwrite):
+def init_output_file(output_csv, overwrite, input_headers):
     output_path = Path(output_csv)
+    output_fields = input_headers + ["0/1"]
 
     if overwrite and output_path.exists():
         output_path.unlink()
@@ -134,17 +138,17 @@ def init_output_file(output_csv, overwrite):
     if not output_path.exists():
         with output_path.open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            writer.writerow(OUTPUT_FIELDS)
+            writer.writerow(output_fields)
         return
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.reader(f, delimiter=";")
         header = next(reader, [])
 
-    if header != OUTPUT_FIELDS:
+    if header != output_fields:
         raise RuntimeError(
             "Existing output CSV header does not match expected columns: "
-            + ";".join(OUTPUT_FIELDS)
+            + ";".join(output_fields)
             + ". Use --overwrite or choose a new output file."
         )
 
@@ -330,13 +334,7 @@ def classify_word(api_key, model_name, phrase_row, timeout, max_retries):
 def append_answer(output_csv, phrase_row, answer):
     with open(output_csv, "a", encoding="utf-8", newline="") as f:
         writer = csv.writer(f, delimiter=";")
-        writer.writerow(
-            [
-                phrase_row["instance_form"],
-                phrase_row["sentence"],
-                answer,
-            ]
-        )
+        writer.writerow(phrase_row["input_values"] + [answer])
         f.flush()
 
 
@@ -353,14 +351,14 @@ def main():
     parser.add_argument(
         "output_csv",
         nargs="?",
-        default="mudel_vastused.csv",
-        help="Output CSV file, e.g. mudel_vastused.csv"
+        default="classified_materials_3_8.csv",
+        help="Output CSV file, e.g. classified_materials_3_8.csv"
     )
 
     parser.add_argument(
         "--input_csv",
-        default="katse3_8_gemma.csv",
-        help="Input CSV file with instance_form and sentence columns, e.g. katse3_8_gemma.csv or katse3_8_gpt.csv"
+        default=str(DEFAULT_INPUT_CSV),
+        help="Input CSV file generated from classified_nouns_3_3.csv zero values"
     )
 
     parser.add_argument(
@@ -407,13 +405,13 @@ def main():
             "OPENROUTER_API_KEY not found. Put it in .env as OPENROUTER_API_KEY=sk-or-..."
         )
 
-    phrase_rows = read_words(args.input_csv)
+    input_headers, phrase_rows = read_words(args.input_csv)
 
     if not phrase_rows:
         raise RuntimeError(f"No phrases found in {args.input_csv}")
 
-    init_output_file(args.output_csv, args.overwrite)
-    done_words = read_existing_answers(args.output_csv)
+    init_output_file(args.output_csv, args.overwrite, input_headers)
+    done_words = read_existing_answers(args.output_csv, input_headers)
 
     todo_rows = []
     seen_rows = Counter()

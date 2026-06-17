@@ -12,6 +12,7 @@ from urllib import request, error
 
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+DEFAULT_INPUT_CSV = Path(__file__).resolve().parents[1] / "classified_nouns_3_1_zero_values.csv"
 
 SYSTEM_PROMPT = """Sa oled leksikograaf, kes töötab eestikeelsete nimisõnafraaside klassifitseerimisega.
 
@@ -65,26 +66,30 @@ def read_words(input_csv):
 
     with input_path.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f, dialect=dialect)
+        input_headers = reader.fieldnames or []
 
-        if reader.fieldnames and "instance_lemma" in reader.fieldnames:
-            for row in reader:
-                instance_lemma = (row.get("instance_lemma") or "").strip()
+        if not input_headers:
+            raise ValueError(f"Input CSV must contain a header row: {input_csv}")
 
-                if instance_lemma:
-                    phrase_rows.append(
-                        {
-                            "instance_lemma": instance_lemma,
-                        }
-                    )
+        input_header = input_headers[0]
 
-            return phrase_rows
+        if not input_header or not input_header.strip():
+            raise ValueError(f"Input CSV first header cannot be empty: {input_csv}")
 
-    raise ValueError(
-        f"Input CSV must contain instance_lemma column: {input_csv}"
-    )
+        for row in reader:
+            instance_lemma = (row.get(input_header) or "").strip()
+
+            if instance_lemma:
+                phrase_rows.append(
+                    {
+                        "instance_lemma": instance_lemma,
+                    }
+                )
+
+    return input_header, phrase_rows
 
 
-def read_existing_answers(output_csv):
+def read_existing_answers(output_csv, input_header):
     output_path = Path(output_csv)
 
     if not output_path.exists():
@@ -94,9 +99,15 @@ def read_existing_answers(output_csv):
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.reader(f, delimiter=";")
+        expected_header = [input_header, "0/1"]
 
         for row_idx, row in enumerate(reader):
             if row_idx == 0:
+                if row != expected_header:
+                    raise ValueError(
+                        f"Existing output header {row} does not match expected {expected_header}. "
+                        "Use a new output file or rerun with --overwrite."
+                    )
                 continue
 
             if len(row) >= 2:
@@ -109,7 +120,7 @@ def read_existing_answers(output_csv):
     return done
 
 
-def init_output_file(output_csv, overwrite):
+def init_output_file(output_csv, overwrite, input_header):
     output_path = Path(output_csv)
 
     if overwrite and output_path.exists():
@@ -118,7 +129,7 @@ def init_output_file(output_csv, overwrite):
     if not output_path.exists():
         with output_path.open("w", encoding="utf-8", newline="") as f:
             writer = csv.writer(f, delimiter=";")
-            writer.writerow(["instance_lemma", "0/1"])
+            writer.writerow([input_header, "0/1"])
 
 
 def normalize_answer(answer_text):
@@ -317,14 +328,14 @@ def main():
     parser.add_argument(
         "output_csv",
         nargs="?",
-        default="mudel_vastused.csv",
-        help="Output CSV file, e.g. mudel_vastused.csv"
+        default="classified_materials_3_6.csv",
+        help="Output CSV file, e.g. classified_materials_3_6.csv"
     )
 
     parser.add_argument(
         "--input_csv",
-        default="katse3_1.csv",
-        help="Input CSV file with one noun per row"
+        default=str(DEFAULT_INPUT_CSV),
+        help="Input CSV file generated from classified_nouns_3_1.csv zero values"
     )
 
     parser.add_argument(
@@ -371,13 +382,13 @@ def main():
             "OPENROUTER_API_KEY not found. Put it in .env as OPENROUTER_API_KEY=sk-or-..."
         )
 
-    phrase_rows = read_words(args.input_csv)
+    input_header, phrase_rows = read_words(args.input_csv)
 
     if not phrase_rows:
         raise RuntimeError(f"No phrases found in {args.input_csv}")
 
-    init_output_file(args.output_csv, args.overwrite)
-    done_words = read_existing_answers(args.output_csv)
+    init_output_file(args.output_csv, args.overwrite, input_header)
+    done_words = read_existing_answers(args.output_csv, input_header)
 
     todo_rows = [
         phrase_row

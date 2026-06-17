@@ -84,7 +84,7 @@ Phrase-level scripts expect CSV files with named columns. Input readers sniff co
 
 ## Output Format and Resuming
 
-Output files are semicolon-delimited CSV files. The final column is always `0/1`. Test1 and Test2 workflow scripts write the input header or headers plus `0/1`, for example `lemma;0/1` or `instance_form;comp1_form;comp2_form;0/1`.
+Output files are semicolon-delimited CSV files. The final column is always `0/1`. Test1, Test2, and Test3 workflow scripts write the input header or headers plus `0/1`, for example `lemma;0/1`, `instance_form;sentence;0/1`, or `instance_form;comp1_form;comp2_form;0/1`.
 
 If an output file already exists, scripts read the existing valid rows and continue with the remaining input. This makes interrupted API runs resumable. Use `--overwrite` to start the output file from scratch.
 
@@ -157,19 +157,36 @@ If you run several Test2 cases in the same directory, keep the default filenames
 
 These scripts classify whether a phrase matches a construction-level definition. The elative appositive scripts are `3_1` to `3_5`; the elative modifier/material scripts are `3_6` to `3_10`.
 
-| Scripts | Task | Required input columns | Output columns |
-| --- | --- | --- | --- |
-| `Test3/classify_nouns_3_1.py`, `Test3/classify_material_3_6.py` | appositive or modifier | `instance_lemma` | `instance_lemma`, `0/1` |
-| `Test3/classify_nouns_3_2.py`, `Test3/classify_material_3_7.py` | appositive or modifier | `instance_form` | `instance_form`, `0/1` |
-| `Test3/classify_nouns_3_3.py`, `Test3/classify_material_3_8.py` | appositive or modifier with sentence context | `instance_form`, `sentence` | `instance_form`, `sentence`, `0/1` |
-| `Test3/classify_nouns_3_4.py`, `Test3/classify_material_3_9.py` | appositive or modifier | `instance_form_long` | `instance_form_long`, `0/1` |
-| `Test3/classify_nouns_3_5.py`, `Test3/classify_material_3_10.py` | appositive or modifier with sentence context | `instance_form_long`, `sentence` | `instance_form_long`, `sentence`, `0/1` |
+Test3 also has two subtasks:
+
+- **Subtask 1**: run a `classify_nouns_3_*.py` script to identify elative appositive cases.
+- **Subtask 2**: run the paired `classify_material_3_*.py` script only on rows that received `0` in subtask 1.
+
+The Test3 input CSVs in `test_data/` are derived from `test_data/millest_mis_1000.csv`. The scripts preserve the input headers in the output and append `0/1`.
+
+| Case | Noun script | Default noun input | Default noun output | Helper output / material input | Material script | Default material output |
+| --- | --- | --- | --- | --- | --- | --- |
+| `3_1` -> `3_6` | `Test3/classify_nouns_3_1.py` | `test_data/instance_lemma.csv` | `classified_nouns_3_1.csv` | `classified_nouns_3_1_zero_values.csv` | `Test3/classify_material_3_6.py` | `classified_materials_3_6.csv` |
+| `3_2` -> `3_7` | `Test3/classify_nouns_3_2.py` | `test_data/instance_form.csv` | `classified_nouns_3_2.csv` | `classified_nouns_3_2_zero_values.csv` | `Test3/classify_material_3_7.py` | `classified_materials_3_7.csv` |
+| `3_3` -> `3_8` | `Test3/classify_nouns_3_3.py` | `test_data/instance_form_sentence.csv` | `classified_nouns_3_3.csv` | `classified_nouns_3_3_zero_values.csv` | `Test3/classify_material_3_8.py` | `classified_materials_3_8.csv` |
+| `3_4` -> `3_9` | `Test3/classify_nouns_3_4.py` | `test_data/instance_form_long.csv` | `classified_nouns_3_4.csv` | `classified_nouns_3_4_zero_values.csv` | `Test3/classify_material_3_9.py` | `classified_materials_3_9.csv` |
+| `3_5` -> `3_10` | `Test3/classify_nouns_3_5.py` | `test_data/instance_form_long_sentence.csv` | `classified_nouns_3_5.csv` | `classified_nouns_3_5_zero_values.csv` | `Test3/classify_material_3_10.py` | `classified_materials_3_10.csv` |
+
+Before running a Test3 material script, create its input with `from_subtask1_extract_zero_values.py`. For example:
+
+```bash
+python from_subtask1_extract_zero_values.py classified_nouns_3_1.csv classified_nouns_3_1_zero_values.csv
+```
+
+The helper keeps only rows where `0/1` is `0`, removes the `0/1` column, and keeps the remaining input headers unchanged. The paired material script reads that helper output by default.
+
+If you run several Test3 cases in the same directory, keep the default filenames per case or pass explicit output filenames so different experiments do not resume from each other's output.
 
 ### Helper Script
 
 | Script | Use case | Input | Output |
 | --- | --- | --- | --- |
-| `from_subtask1_extract_zero_values.py` | Bridge subtask 1 to subtask 2. Subtask 1 is any `classify_nouns*.py` script, which identifies profession/nationality/role cases. The helper keeps only rows where subtask 1 returned `0`, so they can be passed to the paired subtask 2 `classify_material*.py` script. | Any `classify_nouns*.py` output CSV with a `0/1` label column. This applies to Test1, Test2, and Test3 outputs. | Same columns as the input, except the `0/1` column is removed. Only rows with `0/1 = 0` are written. |
+| `from_subtask1_extract_zero_values.py` | Bridge subtask 1 to subtask 2. Subtask 1 is any `classify_nouns*.py` script, which identifies the first target class for that test. The helper keeps only rows where subtask 1 returned `0`, so they can be passed to the paired subtask 2 `classify_material*.py` script. | Any `classify_nouns*.py` output CSV with a `0/1` label column. This applies to Test1, Test2, and Test3 outputs. | Same columns as the input, except the `0/1` column is removed. Only rows with `0/1 = 0` are written. |
 
 ## Usage Examples
 
@@ -197,10 +214,32 @@ python from_subtask1_extract_zero_values.py classified_nouns_2_4.csv classified_
 python Test2/classify_material_2_8.py google/gemini-2.5-flash-lite
 ```
 
-Run a Test3 material/modifier classifier with sentence context:
+Run the default Test3 `3_1` -> `3_6` workflow:
 
 ```bash
-python Test3/classify_material_3_8.py google/gemini-2.5-flash-lite output_material_3_8.csv --input_csv test_data/millest_mis_1000.csv
+python Test3/classify_nouns_3_1.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_3_1.csv classified_nouns_3_1_zero_values.csv
+python Test3/classify_material_3_6.py google/gemini-2.5-flash-lite
+```
+
+Run the other Test3 pairs in the same pattern:
+
+```bash
+python Test3/classify_nouns_3_2.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_3_2.csv classified_nouns_3_2_zero_values.csv
+python Test3/classify_material_3_7.py google/gemini-2.5-flash-lite
+
+python Test3/classify_nouns_3_3.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_3_3.csv classified_nouns_3_3_zero_values.csv
+python Test3/classify_material_3_8.py google/gemini-2.5-flash-lite
+
+python Test3/classify_nouns_3_4.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_3_4.csv classified_nouns_3_4_zero_values.csv
+python Test3/classify_material_3_9.py google/gemini-2.5-flash-lite
+
+python Test3/classify_nouns_3_5.py google/gemini-2.5-flash-lite
+python from_subtask1_extract_zero_values.py classified_nouns_3_5.csv classified_nouns_3_5_zero_values.csv
+python Test3/classify_material_3_10.py google/gemini-2.5-flash-lite
 ```
 
 Run the default Test1 two-subtask workflow:
@@ -218,8 +257,6 @@ python Test1/classify_nouns.py google/gemini-2.5-flash-lite output_nouns.csv --i
 python from_subtask1_extract_zero_values.py output_nouns.csv material_input.csv
 python Test1/classify_material.py google/gemini-2.5-flash-lite output_material.csv --input_csv material_input.csv
 ```
-
-The same helper pattern also applies to paired Test3 scripts, for example `classify_nouns_3_3.py` -> `classify_material_3_8.py`.
 
 Run TartuNLP EstLLM through Featherless.ai:
 
