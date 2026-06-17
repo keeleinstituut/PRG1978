@@ -12,7 +12,10 @@ def sniff_dialect(input_path):
     try:
         return csv.Sniffer().sniff(sample, delimiters=",;\t")
     except csv.Error:
-        return csv.excel
+        class SemicolonDialect(csv.excel):
+            delimiter = ";"
+
+        return SemicolonDialect
 
 
 def read_zero_rows(input_csv, label_column):

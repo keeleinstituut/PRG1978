@@ -2,13 +2,13 @@
 
 Phrase-level prompts that classify the semantic relation between the first component and the head word.
 
-Extracted from `code/LLM_API/Test2` Python scripts.
+Extracted from `code/LLM_API/test2` Python scripts.
 
 Each script sends the `SYSTEM_PROMPT` as the system message and the `user_prompt` template as the user message. Placeholders such as `{word}` or `{sentence}` mark values inserted by the script at runtime.
 
 ## `classify_nouns_2_1.py`
 
-Source: `code/LLM_API/Test2/classify_nouns_2_1.py`
+Source: `code/LLM_API/test2/classify_nouns_2_1.py`
 
 ### System prompt
 
@@ -39,7 +39,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_2_2.py`
 
-Source: `code/LLM_API/Test2/classify_nouns_2_2.py`
+Source: `code/LLM_API/test2/classify_nouns_2_2.py`
 
 ### System prompt
 
@@ -70,7 +70,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_2_3.py`
 
-Source: `code/LLM_API/Test2/classify_nouns_2_3.py`
+Source: `code/LLM_API/test2/classify_nouns_2_3.py`
 
 ### System prompt
 
@@ -101,7 +101,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_2_4.py`
 
-Source: `code/LLM_API/Test2/classify_nouns_2_4.py`
+Source: `code/LLM_API/test2/classify_nouns_2_4.py`
 
 ### System prompt
 
@@ -133,7 +133,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_2_5.py`
 
-Source: `code/LLM_API/Test2/classify_material_2_5.py`
+Source: `code/LLM_API/test2/classify_material_2_5.py`
 
 ### System prompt
 
@@ -164,7 +164,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_2_6.py`
 
-Source: `code/LLM_API/Test2/classify_material_2_6.py`
+Source: `code/LLM_API/test2/classify_material_2_6.py`
 
 ### System prompt
 
@@ -195,7 +195,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_2_7.py`
 
-Source: `code/LLM_API/Test2/classify_material_2_7.py`
+Source: `code/LLM_API/test2/classify_material_2_7.py`
 
 ### System prompt
 
@@ -226,7 +226,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_2_8.py`
 
-Source: `code/LLM_API/Test2/classify_material_2_8.py`
+Source: `code/LLM_API/test2/classify_material_2_8.py`
 
 ### System prompt
 

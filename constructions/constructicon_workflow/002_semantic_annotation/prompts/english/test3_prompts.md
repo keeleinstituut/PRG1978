@@ -6,7 +6,7 @@ The original Estonian prompts were used with the LLMs. These English versions ar
 
 ## `classify_nouns_3_1.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_1.py`
+Source: `code/LLM_API/test3/classify_nouns_3_1.py`
 
 ### System prompt
 
@@ -35,7 +35,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_3_2.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_2.py`
+Source: `code/LLM_API/test3/classify_nouns_3_2.py`
 
 ### System prompt
 
@@ -64,7 +64,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_3_3.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_3.py`
+Source: `code/LLM_API/test3/classify_nouns_3_3.py`
 
 ### System prompt
 
@@ -94,7 +94,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_3_4.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_4.py`
+Source: `code/LLM_API/test3/classify_nouns_3_4.py`
 
 ### System prompt
 
@@ -123,7 +123,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_3_5.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_5.py`
+Source: `code/LLM_API/test3/classify_nouns_3_5.py`
 
 ### System prompt
 
@@ -153,7 +153,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_3_6.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_6.py`
+Source: `code/LLM_API/test3/classify_material_3_6.py`
 
 ### System prompt
 
@@ -182,7 +182,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_3_7.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_7.py`
+Source: `code/LLM_API/test3/classify_material_3_7.py`
 
 ### System prompt
 
@@ -211,7 +211,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_3_8.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_8.py`
+Source: `code/LLM_API/test3/classify_material_3_8.py`
 
 ### System prompt
 
@@ -241,7 +241,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_3_9.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_9.py`
+Source: `code/LLM_API/test3/classify_material_3_9.py`
 
 ### System prompt
 
@@ -270,7 +270,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_3_10.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_10.py`
+Source: `code/LLM_API/test3/classify_material_3_10.py`
 
 ### System prompt
 

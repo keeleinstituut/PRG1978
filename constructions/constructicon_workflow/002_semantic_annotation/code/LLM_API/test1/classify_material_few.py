@@ -63,7 +63,10 @@ def read_words(input_csv):
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
     except csv.Error:
-        dialect = csv.excel
+        class SemicolonDialect(csv.excel):
+            delimiter = ";"
+
+        dialect = SemicolonDialect
 
     words = []
 
@@ -90,7 +93,7 @@ def read_words(input_csv):
     return input_header, words
 
 
-def read_existing_answers(output_csv):
+def read_existing_answers(output_csv, input_header):
     output_path = Path(output_csv)
 
     if not output_path.exists():
@@ -100,9 +103,15 @@ def read_existing_answers(output_csv):
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.reader(f, delimiter=";")
+        expected_header = [input_header, "0/1"]
 
         for row_idx, row in enumerate(reader):
             if row_idx == 0:
+                if row != expected_header:
+                    raise ValueError(
+                        f"Existing output header {row} does not match expected {expected_header}. "
+                        "Use a new output file or rerun with --overwrite."
+                    )
                 continue
 
             if len(row) >= 2:
@@ -382,7 +391,7 @@ def main():
         raise RuntimeError(f"No words found in {args.input_csv}")
 
     init_output_file(args.output_csv, args.overwrite, input_header)
-    done_words = read_existing_answers(args.output_csv)
+    done_words = read_existing_answers(args.output_csv, input_header)
 
     todo_words = [word for word in words if word not in done_words]
 

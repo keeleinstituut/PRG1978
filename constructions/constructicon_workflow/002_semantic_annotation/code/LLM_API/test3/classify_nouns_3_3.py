@@ -7,6 +7,7 @@ import os
 import re
 import sys
 import time
+from collections import Counter
 from pathlib import Path
 from urllib import request, error
 
@@ -60,7 +61,10 @@ def read_words(input_csv):
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
     except csv.Error:
-        dialect = csv.excel
+        class SemicolonDialect(csv.excel):
+            delimiter = ";"
+
+        dialect = SemicolonDialect
 
     phrase_rows = []
 
@@ -99,9 +103,9 @@ def read_existing_answers(output_csv, input_headers):
     output_path = Path(output_csv)
 
     if not output_path.exists():
-        return set()
+        return Counter()
 
-    done = set()
+    done = Counter()
 
     with output_path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f, delimiter=";")
@@ -118,7 +122,7 @@ def read_existing_answers(output_csv, input_headers):
             answer = (row.get("0/1") or "").strip()
 
             if all(row_key) and answer in {"0", "1"}:
-                done.add(row_key)
+                done[row_key] += 1
 
     return done
 
@@ -395,14 +399,19 @@ def main():
     init_output_file(args.output_csv, args.overwrite, input_headers)
     done_words = read_existing_answers(args.output_csv, input_headers)
 
-    todo_rows = [
-        phrase_row
-        for phrase_row in phrase_rows
-        if tuple(phrase_row["input_values"]) not in done_words
-    ]
+    todo_rows = []
+    seen_rows = Counter()
+
+    for phrase_row in phrase_rows:
+        row_key = tuple(phrase_row["input_values"])
+
+        seen_rows[row_key] += 1
+
+        if seen_rows[row_key] > done_words[row_key]:
+            todo_rows.append(phrase_row)
 
     print(f"Input phrases: {len(phrase_rows)}")
-    print(f"Already done: {len(done_words)}")
+    print(f"Already done: {sum(done_words.values())}")
     print(f"Remaining: {len(todo_rows)}")
     print(f"Model: {args.model_name}")
     print(f"Output: {args.output_csv}")

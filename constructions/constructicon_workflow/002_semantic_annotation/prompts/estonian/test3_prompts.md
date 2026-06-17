@@ -2,13 +2,13 @@
 
 Phrase-level prompts that classify whether a phrase matches a construction-level definition.
 
-Extracted from `code/LLM_API/Test3` Python scripts.
+Extracted from `code/LLM_API/test3` Python scripts.
 
 Each script sends the `SYSTEM_PROMPT` as the system message and the `user_prompt` template as the user message. Placeholders such as `{word}` or `{sentence}` mark values inserted by the script at runtime.
 
 ## `classify_nouns_3_1.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_1.py`
+Source: `code/LLM_API/test3/classify_nouns_3_1.py`
 
 ### System prompt
 
@@ -37,7 +37,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_3_2.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_2.py`
+Source: `code/LLM_API/test3/classify_nouns_3_2.py`
 
 ### System prompt
 
@@ -66,7 +66,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_3_3.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_3.py`
+Source: `code/LLM_API/test3/classify_nouns_3_3.py`
 
 ### System prompt
 
@@ -96,7 +96,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_3_4.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_4.py`
+Source: `code/LLM_API/test3/classify_nouns_3_4.py`
 
 ### System prompt
 
@@ -125,7 +125,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_nouns_3_5.py`
 
-Source: `code/LLM_API/Test3/classify_nouns_3_5.py`
+Source: `code/LLM_API/test3/classify_nouns_3_5.py`
 
 ### System prompt
 
@@ -155,7 +155,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_3_6.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_6.py`
+Source: `code/LLM_API/test3/classify_material_3_6.py`
 
 ### System prompt
 
@@ -184,7 +184,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_3_7.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_7.py`
+Source: `code/LLM_API/test3/classify_material_3_7.py`
 
 ### System prompt
 
@@ -213,7 +213,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_3_8.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_8.py`
+Source: `code/LLM_API/test3/classify_material_3_8.py`
 
 ### System prompt
 
@@ -243,7 +243,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_3_9.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_9.py`
+Source: `code/LLM_API/test3/classify_material_3_9.py`
 
 ### System prompt
 
@@ -272,7 +272,7 @@ Vasta ainult ühe märgiga: 1 või 0.
 
 ## `classify_material_3_10.py`
 
-Source: `code/LLM_API/Test3/classify_material_3_10.py`
+Source: `code/LLM_API/test3/classify_material_3_10.py`
 
 ### System prompt
 

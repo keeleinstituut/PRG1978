@@ -61,7 +61,10 @@ def read_words(input_csv):
     try:
         dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
     except csv.Error:
-        dialect = csv.excel
+        class SemicolonDialect(csv.excel):
+            delimiter = ";"
+
+        dialect = SemicolonDialect
 
     phrase_rows = []
 

@@ -6,7 +6,7 @@ The original Estonian prompts were used with the LLMs. These English versions ar
 
 ## `classify_nouns.py`
 
-Source: `code/LLM_API/Test1/classify_nouns.py`
+Source: `code/LLM_API/test1/classify_nouns.py`
 
 ### System prompt
 
@@ -34,7 +34,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material.py`
 
-Source: `code/LLM_API/Test1/classify_material.py`
+Source: `code/LLM_API/test1/classify_material.py`
 
 ### System prompt
 
@@ -62,7 +62,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_few.py`
 
-Source: `code/LLM_API/Test1/classify_nouns_few.py`
+Source: `code/LLM_API/test1/classify_nouns_few.py`
 
 ### System prompt
 
@@ -96,7 +96,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_few.py`
 
-Source: `code/LLM_API/Test1/classify_material_few.py`
+Source: `code/LLM_API/test1/classify_material_few.py`
 
 ### System prompt
 
@@ -128,7 +128,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_estllm.py`
 
-Source: `code/LLM_API/Test1/classify_nouns_estllm.py`
+Source: `code/LLM_API/test1/classify_nouns_estllm.py`
 
 ### System prompt
 
@@ -156,7 +156,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_material_estllm.py`
 
-Source: `code/LLM_API/Test1/classify_material_estllm.py`
+Source: `code/LLM_API/test1/classify_material_estllm.py`
 
 ### System prompt
 
@@ -184,7 +184,7 @@ Answer with exactly one character: 1 or 0.
 
 ## `classify_nouns_3081.py`
 
-Source: `code/LLM_API/Test1/classify_nouns_3081.py`
+Source: `code/LLM_API/test1/classify_nouns_3081.py`
 
 ### System prompt
 

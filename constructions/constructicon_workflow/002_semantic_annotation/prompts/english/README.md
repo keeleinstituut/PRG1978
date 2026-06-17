@@ -6,9 +6,9 @@ NB! The LLMs were given the original Estonian prompts. These English versions ar
 
 The complete prompt translations are split by test/experiment:
 
-- `test1_prompts.md`: translations of word-level noun and lemma classification prompts from `code/LLM_API/Test1`.
-- `test2_prompts.md`: translations of phrase-level component/head relation prompts from `code/LLM_API/Test2`.
-- `test3_prompts.md`: translations of phrase-level construction-definition prompts from `code/LLM_API/Test3`.
+- `test1_prompts.md`: translations of word-level noun and lemma classification prompts from `code/LLM_API/test1`.
+- `test2_prompts.md`: translations of phrase-level component/head relation prompts from `code/LLM_API/test2`.
+- `test3_prompts.md`: translations of phrase-level construction-definition prompts from `code/LLM_API/test3`.
 
 Each prompt file lists the source script and includes translated versions of both message parts:
 

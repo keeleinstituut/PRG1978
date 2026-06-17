@@ -4,9 +4,9 @@ This directory contains the original Estonian prompt templates used for LLM sema
 
 The complete prompt sets are split by test/experiment:
 
-- `test1_prompts.md`: word-level noun and lemma classification prompts from `code/LLM_API/Test1`.
-- `test2_prompts.md`: phrase-level component/head relation prompts from `code/LLM_API/Test2`.
-- `test3_prompts.md`: phrase-level construction-definition prompts from `code/LLM_API/Test3`.
+- `test1_prompts.md`: word-level noun and lemma classification prompts from `code/LLM_API/test1`.
+- `test2_prompts.md`: phrase-level component/head relation prompts from `code/LLM_API/test2`.
+- `test3_prompts.md`: phrase-level construction-definition prompts from `code/LLM_API/test3`.
 
 Each prompt file lists the source script and includes both message parts sent to the model:
 
