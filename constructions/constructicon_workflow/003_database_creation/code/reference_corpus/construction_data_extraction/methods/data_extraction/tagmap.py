@@ -51,6 +51,7 @@ TAG_MAP = {
     "me": "IndPrPl1", #kindel kõneviis olevik 1. isik mitmus aktiiv jaatav kõne
     "n": "IndPrSg1", #kindel kõneviis olevik 1. isik ainsus aktiiv jaatav kõne
     "neg": "Neg", #eitav kõne
+    "neg da": "IndPrIpsN", #nt. "polda"
     "neg ge": "geNeg", #käskiv kõneviis olevik 2. isik mitmus aktiiv eitav kõne
     "neg gem": "ImpPrPl1Neg", #käskiv kõneviis olevik 1. isik mitmus aktiiv eitav kõne
     "neg gu": "ImpPrPsNeg|ImpPrIpsNeg", #käskiv kõneviis olevik 3. isik ainsus/mitmus aktiiv eitav kõne / käskiv kõneviis olevik passiiv eitav kõne

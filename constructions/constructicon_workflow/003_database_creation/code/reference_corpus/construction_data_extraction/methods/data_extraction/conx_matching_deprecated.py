@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Finding construction matches from syntax tree of sentence
+# Finding construction matches from syntax tree of sentence (deprecated)
 
 
 def match_feats(word, feats: dict) -> bool:
@@ -23,16 +23,14 @@ def check_order(anchor, chain, order: str) -> bool:
 
     if order == "BEFORE":
         return all(anchor.id < w.id for w in other_nodes)
-
     if order == "AFTER":
         return all(anchor.id > w.id for w in other_nodes)
-
     return True
 
 
 def get_chain(stanza_words: list, direction: str, length: int, anchor_feats: dict, members_feats: list[dict]):
     """
-    Määratud suunaga.
+    Getting chain with determined direction.
     direction: "UP"/"DOWN"
     anchor_feats: {"deprel": str | None, "POS": str | None, "form": str | None, "instance": str | None, "order": "BEFORE" | "AFTER" | None}
     members_feats: [{"deprel": str | None, "POS": str | None, "form": str | None, "instance": str | None, "order": "BEFORE" | "AFTER" | None}, {"deprel": str | None, "POS": str | None, "form": str | None, "instance": str | None, "order": "BEFORE" | "AFTER" | None}, ...]
@@ -50,6 +48,7 @@ def get_chain(stanza_words: list, direction: str, length: int, anchor_feats: dic
     anchors = [w for w in stanza_words if match_feats(w, anchor_feats)]
    
     for anchor in anchors:
+        # anchor will be the first member of the chain
         current_chain = [anchor]
         current_ids = [anchor.id]
         current_headids = [anchor.head]

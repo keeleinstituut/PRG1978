@@ -8,7 +8,7 @@ import math
 from collections import Counter
 
 # CSV file of corpus form frequencies as input data
-CORPUS_FORMS_FILE_PATH: str = "../data/opikukorpus_form_counts_ekilex_tags_disambig.csv"
+CORPUS_FORMS_FILE_PATH: str = "../data/koondkorpus_form_counts.csv"
 
 CORPUS_FORM_COUNTS: dict[str, int] = {}
 
@@ -56,7 +56,7 @@ def calculate_LL(N: int, f1: int, f2: int, O: int, base10: bool = True) -> float
     :type O: int
     :param base10: by default uses log10; if False, then natural logarithm is used
     :type base10: bool
-    :return: Signed log-likelihood (LL). Pos => attraction; neg => repulsion
+    :return: Signed log-likelihood (LL), rounded to 3 decimals. Pos => attraction; neg => repulsion
     :rtype: float
     """
 
@@ -89,7 +89,7 @@ def calculate_LL(N: int, f1: int, f2: int, O: int, base10: bool = True) -> float
     sign = -1.0 if (O11 - E11) < 0 else 1.0
     G2 = sign * 2.0 * (term(O11, E11) + term(O12, E12) + term(O21, E21) + term(O22, E22))
 
-    return G2
+    return round(G2, 3)
 
 
 def get_n_most_common_by_freq(all_member_forms: list[str], n_most_common: int) -> dict[str, int]:
